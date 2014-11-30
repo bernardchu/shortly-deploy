@@ -13,11 +13,17 @@ var LinkSchema = new mongoose.Schema({
 
 var Link = mongoose.model('Link', LinkSchema);
 
-LinkSchema.method('createCode', function(url) {
+var createCode = function(url) {
   var shasum = crypto.createHash('sha1');
   shasum.update(url);
   return shasum.digest('hex').slice(0, 5);
 };
+
+LinkSchema.pre('save', function(next){
+  var code = createCode(this.url);
+  this.code = code;
+  next();
+});
 
 // var Link = db.Model.extend({
 //   tableName: 'urls',
