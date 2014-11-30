@@ -11,8 +11,6 @@ var LinkSchema = new mongoose.Schema({
  url: String
 });
 
-var Link = mongoose.model('Link', LinkSchema);
-
 var createCode = function(url) {
   var shasum = crypto.createHash('sha1');
   shasum.update(url);
@@ -25,6 +23,7 @@ LinkSchema.pre('save', function(next){
   next();
 });
 
+var Link = mongoose.model('Link', LinkSchema);
 // var Link = db.Model.extend({
 //   tableName: 'urls',
 //   hasTimestamps: true,

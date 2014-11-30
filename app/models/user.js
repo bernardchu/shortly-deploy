@@ -17,21 +17,27 @@ var UserSchema = new mongoose.Schema({
   salt: String
 });
 
-var User = mongoose.model('User', UserSchema);
-
-UserSchema.method('comparePassword',function(attemptedPassord, callback) {
-      bcrypt.compare(attemptedPassword, this.get('password'), function(err, isMatch) {
-        callback(isMatch);
-      });
+UserSchema.method('comparePassword', function(attemptedPassword, savedPassword, callback) {
+  bcrypt.compare(attemptedPassword, savedPassword, function(err, isMatch) {
+    if (err) { 
+      console.log('comparing password and got error: ',err);
+      return callback(err); 
+    }
+    console.log('comparing password; isMatch = ',isMatch);
+    callback(null, isMatch);
+  });
 });
 
-UserSchema.method('hashPassword', function() {
+UserSchema.pre('save', function(next){
   var cipher = Promise.promisify(bcrypt.hash);
-  return cipher(this.get('password'), null, null).bind(this)
+  return cipher(this.password, null, null).bind(this)
     .then(function(hash) {
-      this.set('password', hash);
+      this.password = hash;
+      next();
     });
 });
+
+var User = mongoose.model('User', UserSchema);
 
 // var User = db.Model.extend({
 //   tableName: 'users',
